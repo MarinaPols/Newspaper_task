@@ -1,0 +1,27 @@
+<!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
+{% extends 'flatpages/default.html' %}
+{% load custom_filters %}
+
+
+<!-- Название у нас будет News -->
+{% block title %}
+News
+{% endblock title %}
+
+<!-- В контенте на странице мы выводим саму новость, идентификатор которой был передан в url -->
+{% block content %}
+    <h1>{{ new.title|censor_aut }}
+    <hr>
+
+    <h3> {{ new.author }} </h3>
+    <h2> {{ new.dateCreation|date:'d M Y' }} </h2>
+    <b> Category - </b>
+    {% for categ in new.postCategory.all %}
+        " {{ categ }}"
+
+
+    {% endfor %}
+    <b>Rating:</b> {{ new.rating}}
+    <hr>
+        {{ new.text|censor_aut }}</h1>
+{% endblock content %}
