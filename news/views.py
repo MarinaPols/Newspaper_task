@@ -6,6 +6,9 @@ from .filters import PostFilter
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from .forms import PostForm
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
 from django.contrib.auth.models import User
 
 
@@ -18,7 +21,7 @@ class NewsList(ListView):
     template_name = 'news.html'
 
     context_object_name = 'news'
-    paginate_by = 2
+    paginate_by = 10
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -40,52 +43,73 @@ class NewsList(ListView):
         context['filterset'] = self.filterset
         return context
 
-class NewsDetail(DetailView):
+class NewsDetail(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     model = Post
 
     template_name = 'new.html'
 
     context_object_name = 'new'
+    permission_required = (
+        'news.view_post',
+    )
 
-class NewsCreate(CreateView):
+class NewsCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     form_class = PostForm
     model = Post
     template_name = 'news_edit.html'
+    permission_required = ('news.add_post',)
 
-    #def form_valid(self, form):
-        #post = form.save(commit=False)
-        #post.categoryType = 'NW'
-        #post.author = Author.objects.get(authorUser=self.request.user)
-        #return super().form_valid(form)
+    def form_valid(self, form):
+        post = form.save(commit=False)
+        post.categoryType = 'NW'
+        post.author = Author.objects.get(authorUser=self.request.user)
+        return super().form_valid(form)
 
-class NewsEdit(UpdateView):
+class NewsEdit(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     form_class = PostForm
     model = Post
     template_name = 'news_edit.html'
+    permission_required = ('news.change_post',)
 
-    #def form_valid(self, form):
-        #post = form.save(commit=False)
-        #post.categoryType = 'NW'
-        #post.post.author = Author.objects.get(authorUser=self.request.user)
-        #return super().form_valid(form)
+    def form_valid(self, form):
+        post = form.save(commit=False)
+        post.categoryType = 'NW'
+        post.author = Author.objects.get(authorUser=self.request.user)
+        return super().form_valid(form)
 
-class NewsDelete(DeleteView):
+class NewsDelete(LoginRequiredMixin, DeleteView):
     model = Post
     template_name = 'news_delete.html'
     success_url = reverse_lazy('news_list')
 
-class ArticleCreate(CreateView):
+class ArticleCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     form_class = PostForm
     model = Post
     template_name = 'article_edit.html'
+    permission_required = ('news.add_post',)
 
-class ArticleEdit(UpdateView):
+    def form_valid(self, form):
+        post = form.save(commit=False)
+        post.author = Author.objects.get(authorUser=self.request.user)
+        return super().form_valid(form)
+
+class ArticleEdit(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     form_class = PostForm
     model = Post
     template_name = 'article_edit.html'
+    permission_required = ('news.change_post',)
+
+    def form_valid(self, form):
+        post = form.save(commit=False)
+        post.author = Author.objects.get(authorUser=self.request.user)
+        return super().form_valid(form)
 
 class ArticleDelete(DeleteView):
     model = Post
     template_name = 'news_delete.html'
     success_url = reverse_lazy('news_list')
+
+
+
+
 

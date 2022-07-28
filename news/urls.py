@@ -1,15 +1,7 @@
 from django.urls import path
 # Импортируем созданное нами представление
 #from .views import NewsList, NewsDetail, NewsCreate
-from .views import (NewsList,
-                    NewsDetail,
-                    NewsCreate,
-                    ArticleCreate,
-                    NewsEdit,
-                    ArticleEdit,
-                    NewsDelete,
-                    ArticleDelete,
-                    )
+from .views import NewsList, NewsDetail, NewsCreate, ArticleCreate, NewsEdit, ArticleEdit, NewsDelete, ArticleDelete
 
 urlpatterns = [
     # path — означает путь.
