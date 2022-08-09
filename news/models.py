@@ -91,4 +91,12 @@ class Comment(models.Model):
         self.rating -= 1
         self.save()
 
+class CategorySubscribers(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.user}:{self.category}'
+
+
 

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Post
+from .models import Post, CategorySubscribers
 from django.core.exceptions import ValidationError
 
 
@@ -29,3 +29,9 @@ class PostForm(forms.ModelForm):
             )
 
         return cleaned_data
+
+
+class SubscriberForm(forms.ModelForm):
+    class Meta:
+        model = CategorySubscribers
+        fields = ['category']
