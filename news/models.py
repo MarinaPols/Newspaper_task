@@ -28,6 +28,7 @@ class Author(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=64, unique=True)
+    subscribers = models.ManyToManyField(User, through='CategorySubscribers', blank=True)
 
     def __str__(self):
         return f'{self.name.title()}'
@@ -46,8 +47,7 @@ class Post(models.Model):
     categoryType = models.CharField(max_length=2, choices=CATEGORY_CHOICE, default=ARTICLE)
     dateCreation = models.DateTimeField(auto_now_add=True)
     postCategory = models.ManyToManyField(Category, through='PostCategory')
-    title = models.CharField(max_length=128)
-    title = models.CharField(max_length=256)
+    title = models.CharField(max_length=256, unique=True)
     text = models.TextField()
     rating = models.SmallIntegerField(default=0)
     #D3
@@ -74,6 +74,9 @@ class Post(models.Model):
 class PostCategory(models.Model):
     postThrough = models.ForeignKey(Post, on_delete=models.CASCADE)
     categoryThough = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.categoryThrough} <-> {self.postThrough.title()}'
 
 
 class Comment(models.Model):

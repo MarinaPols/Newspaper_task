@@ -1,15 +1,15 @@
 from django import forms
-from .models import Post, CategorySubscribers
+from .models import Post, CategorySubscribers, PostCategory
 from django.core.exceptions import ValidationError
 
 
 
 class PostForm(forms.ModelForm):
-
     class Meta:
         model = Post
         fields = [
-            'author',
+            #'author',
+            'postCategory',
             'title',
             'text',
         ]

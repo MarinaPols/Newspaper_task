@@ -1,6 +1,6 @@
 from django.shortcuts import render, reverse, redirect
 from django.views import View
-from .models import Post, Author, Category, CategorySubscribers
+from .models import Post, Author, Category, CategorySubscribers, PostCategory
 import datetime
 from .filters import PostFilter
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
@@ -16,6 +16,9 @@ from django.core.mail import EmailMultiAlternatives
 from django.views.generic import TemplateView
 from django.contrib.auth.models import User
 
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.core.mail import mail_managers
 
 
 class NewsList(ListView):
@@ -67,17 +70,25 @@ class NewsCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     def form_valid(self, form):
         post = form.save(commit=False)
         post.categoryType = 'NW'
+
         post.author = Author.objects.get(authorUser=self.request.user)
         return super().form_valid(form)
 
-    def post(self, *args, **kwargs):
-        posts = Post.objects.all().order_by('-dateCreation')[0]
-        send_mail(
-            subject=Post.title,
-            message=Post.text,
-            from_email='Marichka.Polska@yandex.ru',
-            recipient_list=['funnygreenfox@gmail.com']
-        )
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.created_at = now()
+        self.updated_at = now()
+        super().save(*args, **kwargs)
+
+
+    #def post(self, *args, **kwargs):
+        #post = Post.objects.all().order_by('-dateCreation')[0]
+        #send_mail(
+            #subject=Post.title,
+            #message=Post.text,
+            #from_email='Marichka.Polska@yandex.ru',
+            #recipient_list=[cat.subscribers.user.email],
+        #)
 
 class NewsEdit(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     form_class = PostForm
@@ -154,7 +165,7 @@ def add_subscribe(request, pk):
     if not is_subscribed:
         cat.subscribers.add(user)
         #cat = f'{cat}'
-        #email = f'{user.email}'
+        cat.subscribers.user.email = f'{user.email}'
         #send_mail(
             #subject=f'{cat}',
             #message=f'Вы{request.user.first_name} подписались на обнолвения новостей категрии {cat}',
@@ -170,9 +181,7 @@ def add_subscribe(request, pk):
             #fail_silently=False,
         #)
         #return redirect(request.META.get('HTTP_REFERER'))
-    return render('news.html', {
-        'form': form,})
-
+        return redirect('news.html')
 
 
 
